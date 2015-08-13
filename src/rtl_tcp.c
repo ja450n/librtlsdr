@@ -95,7 +95,8 @@ void usage(void)
 		"\t[-b number of buffers (default: 15, set by library)]\n"
 		"\t[-n max number of linked list buffers to keep (default: 500)]\n"
 		"\t[-d device index (default: 0)]\n"
-		"\t[-P ppm_error (default: 0)]\n");
+		"\t[-P ppm_error (default: 0)]\n"
+		"\t[-D direct_sampling (default: 0)]\n");
 	exit(1);
 }
 
@@ -374,6 +375,7 @@ int main(int argc, char **argv)
 	int dev_given = 0;
 	int gain = 0;
 	int ppm_error = 0;
+	int direct_sampling = 0;
 	struct llist *curelem,*prev;
 	pthread_attr_t attr;
 	void *status;
@@ -391,7 +393,7 @@ int main(int argc, char **argv)
 	struct sigaction sigact, sigign;
 #endif
 
-	while ((opt = getopt(argc, argv, "a:p:f:g:s:b:n:d:P:")) != -1) {
+	while ((opt = getopt(argc, argv, "a:p:f:g:s:b:n:d:P:D:")) != -1) {
 		switch (opt) {
 		case 'd':
 			dev_index = verbose_device_search(optarg);
@@ -420,6 +422,10 @@ int main(int argc, char **argv)
 			break;
 		case 'P':
 			ppm_error = atoi(optarg);
+			break;
+		case 'D':
+			direct_sampling = atoi(optarg);
+			//rtlsdr_set_direct_sampling(dev, ntohl(atoi(optarg)));
 			break;
 		default:
 			usage();
@@ -464,6 +470,10 @@ int main(int argc, char **argv)
 	r = rtlsdr_set_sample_rate(dev, samp_rate);
 	if (r < 0)
 		fprintf(stderr, "WARNING: Failed to set sample rate.\n");
+
+	/* Enable direct sampling */
+	if (direct_sampling == 1)
+		rtlsdr_set_direct_sampling(dev, ntohl(1));
 
 	/* Set the frequency */
 	r = rtlsdr_set_center_freq(dev, frequency);
