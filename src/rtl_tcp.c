@@ -96,7 +96,7 @@ void usage(void)
 		"\t[-n max number of linked list buffers to keep (default: 500)]\n"
 		"\t[-d device index (default: 0)]\n"
 		"\t[-P ppm_error (default: 0)]\n"
-		"\t[-D direct_sampling (default: 0)]\n");
+		"\t[-D direct_sampling (default: 0, 1 = I, 2 = Q)]\n");
 	exit(1);
 }
 
@@ -472,9 +472,9 @@ int main(int argc, char **argv)
 		fprintf(stderr, "WARNING: Failed to set sample rate.\n");
 
 	/* Enable direct sampling */
-	if (direct_sampling == 1)
-		rtlsdr_set_direct_sampling(dev, ntohl(1));
-
+	if (direct_sampling == 1 || direct_sampling == 2 )
+		rtlsdr_set_direct_sampling(dev, ntohl(direct_sampling));
+	
 	/* Set the frequency */
 	r = rtlsdr_set_center_freq(dev, frequency);
 	if (r < 0)
